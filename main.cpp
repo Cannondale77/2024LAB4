@@ -1,70 +1,27 @@
+ 
+/* Includes */
 #include "mbed.h"
+#include "HTS221Sensor.h"
 #include "LPS22HBSensor.h"
 #include "LSM6DSLSensor.h"
 #include "lis3mdl_class.h"
-
 #include "VL53L0X.h"
-
 
 // objects for various sensors
 static DevI2C devI2c(PB_11,PB_10);
-
 static LPS22HBSensor press_temp(&devI2c);
 static HTS221Sensor hum_temp(&devI2c);
-
-
 static LSM6DSLSensor acc_gyro(&devI2c,0xD4,D4,D5); // high address
 static LIS3MDL magnetometer(&devI2c, 0x3C);
-
-
 static DigitalOut shutdown_pin(PC_6);
 static VL53L0X range(&devI2c, &shutdown_pin, PC_7, 0x52);
 
-/* Simple main function */
-int main() {
-  uint8_t id;
-  float value1, value2;
-//  char buffer1[32], buffer2[32];
-  int32_t axes[3];
-
-  hum_temp.init(NULL);
-
-  press_temp.init(NULL);
-  magnetometer.init(NULL);
-  acc_gyro.init(NULL);
-
-  range.init_sensor(0x52);
-
-  hum_temp.enable();
-  press_temp.enable();
-
-  acc_gyro.enable_x();
-  acc_gyro.enable_g();
-
-  printf("\033[2J\033[20A");
-  printf ("\r\n--- Starting new run ---\r\n\r\n");
-
-  hum_temp.read_id(&id);
-  printf("HTS221  humidity & temperature    = 0x%X\r\n", id);
-
-  press_temp.read_id(&id);
-  printf("LPS22HB pressure & temperature    = 0x%X\r\n", id);
-  magnetometer.read_id(&id);
-  printf("LIS3MDL magnetometer              = 0x%X\r\n", id);
-  acc_gyro.read_id(&id);
-  printf("LSM6DSL accelerometer & gyroscope = 0x%X\r\n", id);
-
-  printf("\n\r--- Reading sensor values ---\n\r"); ;
-
-  while(1) {
-    printf("\r\n");
 
 // functions to print sensor data
 void print_t_rh(){
     float value1, value2;
     hum_temp.get_temperature(&value1);
     hum_temp.get_humidity(&value2);
-    printf("HTS221:  [temp] %.2f C, [hum]   %.2f%%\r\n", value1, value2);
 
     value1=value2=0;    
     press_temp.get_temperature(&value1);
@@ -108,9 +65,6 @@ int main() {
 
     int32_t axes[3];
 
-    // printf("\033[8A");
-    wait_us(500000);
-  }
     hum_temp.init(NULL);
 
     press_temp.init(NULL);
@@ -124,7 +78,7 @@ int main() {
 
     acc_gyro.enable_x();
     acc_gyro.enable_g();
-
+  
     printf("\033[2J\033[20A");
     printf ("\r\n--- Starting new run ---\r\n\r\n");
 
@@ -137,7 +91,7 @@ int main() {
     printf("LIS3MDL magnetometer              = 0x%X\r\n", id);
     acc_gyro.read_id(&id);
     printf("LSM6DSL accelerometer & gyroscope = 0x%X\r\n", id);
-
+    
     printf("\n\r--- Reading sensor values ---\n\r"); ;
     print_t_rh();
     print_mag();
@@ -145,8 +99,11 @@ int main() {
     print_gyro();
     print_distance();
     printf("\r\n");
-
+    
     while(1) {
         wait_us(500000);
     }
 }
+
+  
+ 
